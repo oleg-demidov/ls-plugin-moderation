@@ -33,9 +33,14 @@ class PluginModeration_ModuleModeration_BehaviorEntity extends Behavior
      * @var array
      */
     protected $aParams = array(
-        // Поля которые нужно модерировать
+        // Поля которые нужно модерировать 
         'moderation_fields' => [],
-        'title_field'        => 'title'
+        // Имя поля для отображения в списке модерации
+        'title_field'       => 'title',
+        // Вызывается после успешной модерации метод сущности
+        'callback_moderate' => 'afterModerate',
+        // Вызывается после неуспешной модерации
+        'callback_denied' => 'afterDenied'
     );
     
     /**
@@ -58,6 +63,10 @@ class PluginModeration_ModuleModeration_BehaviorEntity extends Behavior
     
     public function getTitle() {
         return $this->oObject->_getDataOne($this->getParam('title_field'));
+    }
+    
+    public function isModerated() {
+        return $this->PluginModeration_Moderation_IsModerated($this->oObject);
     }
     
     /**

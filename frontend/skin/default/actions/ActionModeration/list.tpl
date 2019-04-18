@@ -9,16 +9,7 @@
 {/block}
                     
 {block 'layout_content'}
-    <div class="row mt-3">
-        <div class="col-1">{$aLang.plugin.moderation.list.cols.number}</div>
-        
-        <div class="col">{$aLang.plugin.moderation.list.cols.title}</div>
-        {*{foreach $aModerateFields as $field}
-            <div class="col">{$field}</div>
-        {/foreach}*}
-
-        <div class="col-2 col-lg"></div>
-    </div>
+    
         
     {component "ajax.list" 
         attributes  = [

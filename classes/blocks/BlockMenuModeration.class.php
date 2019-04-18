@@ -29,10 +29,11 @@ class PluginModeration_BlockMenuModeration extends BlockMenu {
 
     public function __construct($aParams) {
         
-        $aTypesEntity = $this->PluginModeration_Moderation_GetModerationItemsByFilter([
-            '#cache' => ['moderation_entities', 60*60*24],
-            '#group' => 'entity'
-        ]);
+        $aTypesEntity = $this->PluginModeration_Moderation_GetModerationEntities();
+        
+        if(!$aTypesEntity){
+            return false;
+        }
 
         foreach ($aTypesEntity as $oTypeEntity) {
             $this->Menu_Get('moderation')->appendChild(Engine::GetEntity("ModuleMenu_EntityItem", [
