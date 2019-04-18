@@ -33,11 +33,9 @@ class PluginModeration_ModuleModeration_BehaviorEntity extends Behavior
      * @var array
      */
     protected $aParams = array(
-        // Уникальный код
-        'target_type'                    => '',
-        // Колбек для сообщения о нажатии нравится.
-        // Указывать можно строкой с полным вызовом метода модуля, например, "PluginArticle_Main_GetCountArticle"
-        'callback_like'          => null,
+        // Поля которые нужно модерировать
+        'moderation_fields' => [],
+        'title_field'        => 'title'
     );
     
     /**
@@ -46,10 +44,22 @@ class PluginModeration_ModuleModeration_BehaviorEntity extends Behavior
      * @var array
      */
     protected $aHooks = array(
-        'after_delete'   => 'CallbackAfterDelete'
+        'after_save'     => 'CallbackAfterSave',
+        'after_delete'   => 'CallbackAfterDelete',
     );
     
-
+    public function CallbackAfterSave() {
+        $this->PluginModeration_Moderation_ToModeration($this->oObject);
+    }
+    
+    public function getFields() {
+        return $this->getParam('moderation_fields');
+    }
+    
+    public function getTitle() {
+        return $this->oObject->_getDataOne($this->getParam('title_field'));
+    }
+    
     /**
      * Инициализация
      */

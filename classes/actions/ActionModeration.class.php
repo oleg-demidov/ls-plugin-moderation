@@ -28,12 +28,57 @@
  */
 class PluginModeration_ActionModeration extends ActionPlugin{
     
+    protected $sMenuItemSelect = '';
+    
     public function Init()
     {
+        if(!$this->CheckUserAccess()){
+            $this->Message_AddError($this->Lang_Get('common.error.system.code.404'), '404');
+            Router::LocationAction('error/404');
+        }
+        
+        $this->SetDefaultEvent('list');
         
     }
+    
     protected function RegisterEvent() {
+        $this->RegisterEventExternal('Moderation', 'PluginModeration_ActionModeration_EventModeration');
+        $this->AddEventPreg('/^list$/i', '/^([\w_]+)?$/i',  ['Moderation::EventList' , 'moderation_list']);
+        $this->AddEventPreg('/^ajax-list$/i',  'Moderation::EventAjaxList');
+//        $this->AddEventPreg('/^ajax-publish$/i',  'Moderation::EventAjaxPublish');
+//        $this->AddEventPreg('/^ajax-delete$/i',  'Moderation::EventAjaxDelete');
     }
     
+    /**
+     * Проверка корректности профиля
+     */
+    protected function CheckUserAccess()
+    {
+        /**
+         * Проверяем есть ли такой юзер
+         */
+        if (!$this->oUserCurrent = $this->User_GetUserCurrent()) {
+            return false;
+        }        
+        
+        if($this->oUserCurrent->isAdministrator()){
+            return true;
+        } 
+        
+        if(! $this->Rbac_IsAllow('moderation')){
+            return false;
+        }
+        
+        return true;
+    }
     
+    /**
+     * Выполняется при завершении каждого эвента
+     */
+    public function EventShutdown()
+    {
+        $this->Viewer_Assign('sModerationAction', Router::GetAction());
+        $this->Menu_Get('moderation')->setActiveItem($this->sMenuItemSelect);
+
+    }
 }

@@ -12,19 +12,25 @@ if (!class_exists('Plugin')) {
     die('Hacking attempt!');
 }
 
-class PluginLike extends Plugin
+class PluginModeration extends Plugin
 {
     
-    
+    protected $aInherits = [
+        'template' => [
+            'component.menu.moderation' => '_components/menu/moderation.tpl'
+        ]
+    ];
+
+
     public function Init()
     {
 //        $this->Lang_AddLangJs([
 //            'plugin.wiki.markitup.punkt'
 //        ]);
 //        
-        $this->Component_Add('like:like');
+        //$this->Component_Add('like:like');
 
-        $this->Viewer_AppendScript(Plugin::GetTemplatePath('like'). '/assets/js/init.js');
+        //$this->Viewer_AppendScript(Plugin::GetTemplatePath('like'). '/assets/js/init.js');
     }
 
     public function Activate()

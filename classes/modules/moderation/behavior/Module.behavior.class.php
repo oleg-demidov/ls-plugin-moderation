@@ -41,10 +41,7 @@ class PluginModeration_ModuleModeration_BehaviorModule extends Behavior
      * @var array
      */
     protected $aHooks = array(
-        'module_orm_GetItemsByFilter_after'  => array(
-            'CallbackGetItemsByFilterAfter',
-            1000
-        ),
+        
         'module_orm_GetItemsByFilter_before' => array(
             'CallbackGetItemsByFilterBefore',
             1000
@@ -56,20 +53,40 @@ class PluginModeration_ModuleModeration_BehaviorModule extends Behavior
      *
      * @param $aParams
      */
-    public function CallbackGetItemsByFilterAfter($aParams)
-    {
-        
-    }
-
-    /**
-     * Модифицирует результат ORM запроса
-     *
-     * @param $aParams
-     */
     public function CallbackGetItemsByFilterBefore($aParams)
     {
-       
+        $oEntity = Engine::GetEntity($aParams['sEntityFull']);
+        
+        $aBehaviors = $oEntity->GetBehaviors();
+        $isBehaviorModeration = false;
+        foreach ($aBehaviors as $oBehavior) {
+            if ($oBehavior instanceof PluginModeration_ModuleModeration_BehaviorEntity) {
+                $isBehaviorModeration = true;
+                break;
+            }
+        }
+        
+        if(!$isBehaviorModeration){
+            return false;
+        }
+        
+        $aModerations = $this->PluginModeration_Moderation_GetModerationItemsByFilter([
+            'entity' => $aParams['sEntityFull'],
+            '#index-from' => 'entity_id'
+        ]);    
+        
+        if(!$aModerations){
+            return false;
+        }
+        
+        if(!isset($aParams['aFilter']['#where'])){
+            $aParams['aFilter']['#where'] = [];
+        }
+                
+        $aParams['aFilter']['#where']["t.{$oEntity->_getPrimaryKey()} NOT IN (?a)"] = [array_keys($aModerations)];
     }
+
+    
 
     
 }

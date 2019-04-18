@@ -1,0 +1,12 @@
+{
+    "name": "entity",
+    "version": "1.0.0",
+    
+    "templates" :{
+        "item":"entity-item.tpl",
+        "list":"entity-list.tpl"
+    },
+    "scripts": {
+        "entity":"js/moderate-entity.js"
+    }
+}
