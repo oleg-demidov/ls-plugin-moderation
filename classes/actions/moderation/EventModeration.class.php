@@ -59,6 +59,7 @@ class PluginModeration_ActionModeration_EventModeration extends Event {
             
             //$oViewer->GetSmartyObject()->addPluginsDir(Config::Get('path.application.server').'/classes/modules/viewer/plugs');
             $oViewer->Assign('aEntities', $aEntities);
+            $oViewer->Assign('sEntityClass', getRequest('entity'));
             list($aModerationFields, $sTitleField) = $this->getModerateFileds($oEntity);
             $oViewer->Assign('aModerateFields', $aModerationFields);
             $oViewer->Assign('sTitleField', $sTitleField);
@@ -89,13 +90,27 @@ class PluginModeration_ActionModeration_EventModeration extends Event {
     public function EventAjaxPublish()
     {
         $this->Viewer_SetResponseAjax('json');
-        
+        /*
+         * Получение цели модерации по параметрам из реквеста
+         */
+        $oModeration = $this->PluginModeration_Moderation_GetModerationByFilter([
+            'entity'        => getRequest('entity'),
+            'entity_id'     => getRequest('entityId')
+        ]);
+        /*
+         * Удаление если найдена тем самым публикуем сущность
+         */
+        if($oModeration){
+            $this->Viewer_AssignAjax('remove', $oModeration->Delete());
+        }
+        /*
+         * Подсчитать количество оставшихся непромодерированных
+         */
         $iModerationCount = $this->PluginModeration_Moderation_GetCountFromModerationByFilter([
             'entity'        => getRequest('entity'),
             'entity_id'     => getRequest('entityId')
         ]);
         
-        $this->Viewer_AssignAjax('remove', 1);
         $this->Viewer_AssignAjax('countAll', $iModerationCount);
     }
     
@@ -103,15 +118,26 @@ class PluginModeration_ActionModeration_EventModeration extends Event {
     public function EventAjaxDelete()
     {
         $this->Viewer_SetResponseAjax('json');
-        
-           
-        
+        /*
+         * Получение сущности по параметрам из реквеста
+         */
+        $oEntity = $this->PluginModeration_Moderation_GetByFilter([
+            $oEntity->_getPrimaryKey() => getRequest('entityId')
+        ], getRequest('entity'));
+        /*
+         * Удаление если найдена
+         */
+        if($oEntity){
+            $this->Viewer_AssignAjax('remove', $oEntity->Delete());
+        }
+        /*
+         * Подсчитать количество оставшихся непромодерированных
+         */
         $iModerationCount = $this->PluginModeration_Moderation_GetCountFromModerationByFilter([
             'entity'        => getRequest('entity'),
             'entity_id'     => getRequest('entityId')
         ]);
         
-        $this->Viewer_AssignAjax('remove', 1);
         $this->Viewer_AssignAjax('countAll', $iModerationCount);
     }
     

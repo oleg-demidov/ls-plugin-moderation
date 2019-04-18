@@ -30,7 +30,8 @@
             bmods       = "success"
             icon        = "check"
             attributes = [
-                'data-param-id' => $oEntity->getId(),
+                'data-param-entity-id' => $oEntity->getId(),
+                'data-param-entity' => $sEntityClass,
                 'data-ajax-btn' => "true",
                 'data-url'  => {router page="moderation/ajax-publish"},
                 'data-item-selector'  => '.entity-item'
@@ -42,7 +43,8 @@
             icon    = "ban"
             bmods   = "warning"
             attributes = [
-                'data-param-id' => $oEntity->getId(),
+                'data-param-entity-id' => $oEntity->getId(),
+                'data-param-entity' => $sEntityClass,
                 'data-ajax-btn' => "true",
                 'data-confirm'  => "true",
                 'data-confirm-message'  => $aLang.moderation.responses.notice.confirm_publish,
