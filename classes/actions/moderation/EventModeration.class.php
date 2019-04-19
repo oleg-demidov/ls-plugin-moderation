@@ -27,7 +27,22 @@ class PluginModeration_ActionModeration_EventModeration extends Event {
             $this->Viewer_Assign('aModerateFields', $this->getModerateFileds($oEntity));
             $this->Viewer_Assign('sEntityName', Engine::GetEntityName($oEntity));
             $this->Viewer_Assign('sEntityClass', $sEntity);
+            /*
+             * Выгрузка в шаблон количества модераций
+             */
+            $this->Viewer_Assign('countModeration', $this->PluginModeration_Moderation_GetCountFromModerationByFilter([
+                "#cache" => ['countModeration', 60*60*24],
+                'entity' => $sEntity, 
+                'state' => PluginModeration_ModuleModeration::STATE_MODERATE
+            ]));
+            $this->Viewer_Assign('countDenied', $this->PluginModeration_Moderation_GetCountFromModerationByFilter([
+                "#cache" => ['countDenied', 60*60*24],
+                'entity' => $sEntity, 
+                'state' => PluginModeration_ModuleModeration::STATE_DENIED
+            ]));
         } 
+        
+        $this->Viewer_Assign('sState', $this->GetParam(1, 'moderation'));
         
         $this->sMenuItemSelect = $sEntity;
         
@@ -38,6 +53,7 @@ class PluginModeration_ActionModeration_EventModeration extends Event {
         $this->Viewer_SetResponseAjax('json');
         $this->SetTemplate(false);
         
+        
         $iStart = getRequest('start', 0);
         $iLimit = getRequest('limit', Config::Get('moderation.talk.page_count'));
         
@@ -46,13 +62,25 @@ class PluginModeration_ActionModeration_EventModeration extends Event {
         if(class_exists(getRequest('entity'))){
             $oEntity = Engine::GetEntity(getRequest('entity'));
             
-            $aModerations = $this->PluginModeration_Moderation_GetModerationItemsByFilter([
+            $aStates = [
+                'moderation' => PluginModeration_ModuleModeration::STATE_MODERATE,
+                'denied' => PluginModeration_ModuleModeration::STATE_DENIED
+            ];
+            /*
+             * Фильтр поиска модераций
+             */
+            $aFilterModertion = [
                 'entity' => getRequest('entity'),
-                '#index-from' => 'entity_id'
-            ]);
+                '#index-from' => 'entity_id',
+                'state' => $aStates[getRequest('state', 'moderation')]
+            ];
+                        
+            $aModerations = $this->PluginModeration_Moderation_GetModerationItemsByFilter($aFilterModertion);
+            
+            $aEntityIds = array_merge([0],array_keys($aModerations));
         
             $aEntities = $this->PluginModeration_Moderation_GetItemsByFilter([
-                $oEntity->_getPrimaryKey().' in' => array_keys($aModerations),
+                $oEntity->_getPrimaryKey().' in' => $aEntityIds,
                 '#limit'         => [ $iStart, $iLimit],
             ], getRequest('entity'));
             
@@ -79,10 +107,15 @@ class PluginModeration_ActionModeration_EventModeration extends Event {
     }
     
     private function getModerateFileds($oEntity) {
+        $oBehavior = $this->getBehaviorModeration($oEntity);
+        return [$oBehavior->getFields(), $oBehavior->getParam('title_field')];
+    }
+    
+    private function getBehaviorModeration($oEntity) {
         $aBehaviors = $oEntity->GetBehaviors();
         foreach ($aBehaviors as $oBehavior) {            
             if ($oBehavior instanceof PluginModeration_ModuleModeration_BehaviorEntity) {
-                return [$oBehavior->getFields(), $oBehavior->getParam('title_field')];
+                return $oBehavior;
             }
         }
     }
@@ -104,11 +137,21 @@ class PluginModeration_ActionModeration_EventModeration extends Event {
             $this->Viewer_AssignAjax('remove', $oModeration->Delete());
         }
         /*
+         * Обратный  вызов после успешной модерации
+         */
+        if($oEntity = $oModeration->getEntityObject()){
+            $sMethod = $this->getBehaviorModeration($oEntity)->getParam('callback_moderate');
+            if(method_exists($oEntity, $sMethod)){
+                call_user_func([$oEntity, $sMethod]);
+            }
+        }
+        /*
          * Подсчитать количество оставшихся непромодерированных
          */
         $iModerationCount = $this->PluginModeration_Moderation_GetCountFromModerationByFilter([
             'entity'        => getRequest('entity'),
-            'entity_id'     => getRequest('entityId')
+            'entity_id'     => getRequest('entityId'),
+            'state'         => PluginModeration_ModuleModeration::STATE_MODERATE
         ]);
         
         $this->Viewer_AssignAjax('countAll', $iModerationCount);
@@ -144,15 +187,38 @@ class PluginModeration_ActionModeration_EventModeration extends Event {
     public function EventAjaxDenied()
     {
         $this->Viewer_SetResponseAjax('json');
-        
-           
-        
-        $iModerationCount = $this->PluginModeration_Moderation_GetCountFromModerationByFilter([
+        /*
+         * Получение цели модерации по параметрам из реквеста
+         */
+        $oModeration = $this->PluginModeration_Moderation_GetModerationByFilter([
             'entity'        => getRequest('entity'),
             'entity_id'     => getRequest('entityId')
         ]);
+        /*
+         * Изменение модерации на статус отказано
+         */
+        if($oModeration){
+            $oModeration->setState(PluginModeration_ModuleModeration::STATE_DENIED);
+            $this->Viewer_AssignAjax('remove', $oModeration->Save());
+        }
+        /*
+         * Обратный  вызов после отказа модерации
+         */
+        if($oEntity = $oModeration->getEntityObject()){
+            $sMethod = $this->getBehaviorModeration($oEntity)->getParam('callback_denied');
+            if(method_exists($oEntity, $sMethod)){
+                call_user_func([$oEntity, $sMethod]);
+            }
+        }
+        /*
+         * Подсчитать количество оставшихся непромодерированных и отказаных
+         */
+        $iModerationCount = $this->PluginModeration_Moderation_GetCountFromModerationByFilter([
+            'entity'        => getRequest('entity'),
+            'entity_id'     => getRequest('entityId'),
+            'state'         => PluginModeration_ModuleModeration::STATE_DENIED
+        ]);
         
-        $this->Viewer_AssignAjax('remove', 1);
         $this->Viewer_AssignAjax('countAll', $iModerationCount);
     }
     

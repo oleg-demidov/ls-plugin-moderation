@@ -41,4 +41,10 @@ class PluginModeration_ModuleModeration extends ModuleORM
     public function IsModerated($oEntity) {
         return !($this->GetEntityModeration($oEntity));
     }
+    
+    public function GetCountModeration() {
+        return $this->PluginModeration_Moderation_GetCountFromModerationByFilter([
+            'state' => PluginModeration_ModuleModeration::STATE_MODERATE
+        ]);
+    }
 }

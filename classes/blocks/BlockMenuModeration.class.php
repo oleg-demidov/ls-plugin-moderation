@@ -39,7 +39,12 @@ class PluginModeration_BlockMenuModeration extends BlockMenu {
             $this->Menu_Get('moderation')->appendChild(Engine::GetEntity("ModuleMenu_EntityItem", [
                 'title' => Engine::GetEntityName(Engine::GetEntity($oTypeEntity->getEntity())), 
                 'name' => $oTypeEntity->getEntity(), 
-                'url' => Router::GetAction(). "/list/" . $oTypeEntity->getEntity()
+                'url' => Router::GetAction(). "/list/" . $oTypeEntity->getEntity(),
+                'count' => $this->PluginModeration_Moderation_GetCountFromModerationByFilter([
+                    "#cache" => ['countModeration', 60*60*24],
+                    'entity' => $oTypeEntity->getEntity(), 
+                    'state' => PluginModeration_ModuleModeration::STATE_MODERATE
+                ])
             ]));
         }
         

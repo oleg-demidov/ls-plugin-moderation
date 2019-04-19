@@ -18,4 +18,19 @@ class PluginModeration_ModuleModeration_EntityModeration extends EntityORM
         }
         return true;
     }
+    
+    /**
+     * Получить сущность которая модерируется
+     * 
+     * @return type EntityORM
+     */
+    public function getEntityObject() {
+        $oEntity = Engine::GetEntity($this->getEntity());
+        return $this->PluginModeration_Moderation_GetByFilter(
+            [
+                $oEntity->_getPrimaryKey() => $this->getEntityId()
+            ],
+            $this->getEntity() 
+        );
+    }
 }

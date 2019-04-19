@@ -6,13 +6,13 @@
     <div class="col-1">{$oEntity->_getPrimaryKeyValue()}</div>
 
     <div class="col">
-        {$id = "entity{$oEntity->_getPrimaryKeyValue()}"}
+        {$idModal = "entity{$oEntity->_getPrimaryKeyValue()}Modal"}
         {component "bs-button" 
             com         = "link"
             url         = "#"
             text        = $oEntity->_getDataOne($sTitleField)
             bmods       = "success" 
-            attributes  = [ "data-toggle" => "modal", "data-target" => "#{$id}" ]}
+            attributes  = [ "data-toggle" => "modal", "data-target" => "#{$idModal}" ]}
     </div>
     
     {capture name="contentEntity"}
@@ -30,6 +30,7 @@
             bmods       = "success"
             icon        = "check"
             attributes = [
+                "data-dismiss" => "modal",
                 'data-param-entity-id' => $oEntity->getId(),
                 'data-param-entity' => $sEntityClass,
                 'data-ajax-btn' => "true",
@@ -43,13 +44,12 @@
             icon    = "ban"
             bmods   = "warning"
             attributes = [
+                "data-dismiss" => "modal",
                 'data-param-entity-id' => $oEntity->getId(),
                 'data-param-entity' => $sEntityClass,
                 'data-ajax-btn' => "true",
-                'data-confirm'  => "true",
-                'data-confirm-message'  => $aLang.moderation.responses.notice.confirm_publish,
                 'data-url'  => {router page="moderation/ajax-denied"},
-                'data-item-selector'  => '.response-item'
+                'data-item-selector'  => '.entity-item'
             ]
         }
         
@@ -58,12 +58,14 @@
             icon    = "trash-alt"
             bmods   = "danger"
             attributes = [
+                
+                "data-dismiss" => "modal",
                 'data-param-id' => $oEntity->getId(),
                 'data-ajax-btn' => "true",
                 'data-confirm'  => "true",
-                'data-confirm-message'  => $aLang.moderation.responses.notice.confirm_delete,
+                'data-confirm-message'  => $aLang.plugin.moderation.actions.notices.confirm_delete,
                 'data-url'  => {router page="moderation/ajax-delete"},
-                'data-item-selector'  => '.response-item'
+                'data-item-selector'  => '.entity-item'
             ]
         }
        
@@ -77,7 +79,7 @@
         centered    = true 
         content     = $smarty.capture.contentEntity
         footer      = $smarty.capture.footerEntity
-        id          = $id
+        id          = $idModal
     }
     
     <div class="col-2 col-lg"></div>

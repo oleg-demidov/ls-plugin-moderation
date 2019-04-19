@@ -43,8 +43,8 @@ class PluginModeration_ActionModeration extends ActionPlugin{
     
     protected function RegisterEvent() {
         $this->RegisterEventExternal('Moderation', 'PluginModeration_ActionModeration_EventModeration');
-        $this->AddEventPreg('/^list$/i', '/^([\w_]+)?$/i',  ['Moderation::EventList' , 'moderation_list']);
-        $this->AddEventPreg('/^ajax-list$/i',  'Moderation::EventAjaxList');
+        $this->AddEventPreg('/^list$/i', '/^([\w_]+)?$/i',  '/^(moderation|denied)?$/i', ['Moderation::EventList' , 'moderation_list']);
+        $this->AddEventPreg('/^ajax-list$/i', 'Moderation::EventAjaxList');
         $this->AddEventPreg('/^ajax-publish$/i',  'Moderation::EventAjaxPublish');
         $this->AddEventPreg('/^ajax-delete$/i',  'Moderation::EventAjaxDelete');
         $this->AddEventPreg('/^ajax-denied/i',  'Moderation::EventAjaxDenied');
