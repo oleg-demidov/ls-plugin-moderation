@@ -57,6 +57,10 @@ class PluginModeration_ModuleModeration_BehaviorEntity extends Behavior
         $this->PluginModeration_Moderation_ToModeration($this->oObject);
     }
     
+    public function CallbackAfterDelete() {
+        $this->PluginModeration_Moderation_RemoveModerations($this->oObject);
+    }
+    
     public function getFields() {
         return $this->getParam('moderation_fields');
     }

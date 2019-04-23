@@ -47,4 +47,19 @@ class PluginModeration_ModuleModeration extends ModuleORM
             'state' => PluginModeration_ModuleModeration::STATE_MODERATE
         ]);
     }
+    
+    /**
+     * Удалить все модерации данного объекта
+     * @param type $oEntity
+     */
+    public function RemoveModerations($oEntity) {
+        $aModerations = $this->PluginModeration_Moderation_GetModerationItemsByFilter([
+            'entity' => get_class( $oEntity ),
+            'id' => $oEntity->_getPrimaryKeyValue()
+        ]);
+        
+        foreach ($aModerations as $oModeration) {
+            $oModeration->Delete();
+        }
+    }
 }

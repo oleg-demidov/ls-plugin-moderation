@@ -48,6 +48,8 @@
                 'data-param-entity-id' => $oEntity->getId(),
                 'data-param-entity' => $sEntityClass,
                 'data-ajax-btn' => "true",
+                'data-prompt' => true,
+                'data-prompt-message' => 'Причина',
                 'data-url'  => {router page="moderation/ajax-denied"},
                 'data-item-selector'  => '.entity-item'
             ]

@@ -17,7 +17,7 @@ class PluginModeration_ActionModeration_EventModeration extends Event {
         if(!$sEntity){
             $aTypesEntity = $this->PluginModeration_Moderation_GetModerationEntities();
             if($aTypesEntity and !$this->GetParam(0)){
-                $sEntity = array_shift($aTypesEntity)->getEntity();
+                $sEntity = current($aTypesEntity)->getEntity();
                 Router::LocationAction(Router::GetAction() . '/list/' . $sEntity);
             }
         }
@@ -43,6 +43,7 @@ class PluginModeration_ActionModeration_EventModeration extends Event {
         } 
         
         $this->Viewer_Assign('sState', $this->GetParam(1, 'moderation'));
+        $this->Viewer_Assign('aTypesEntity', $aTypesEntity);
         
         $this->sMenuItemSelect = $sEntity;
         
@@ -207,7 +208,7 @@ class PluginModeration_ActionModeration_EventModeration extends Event {
         if($oEntity = $oModeration->getEntityObject()){
             $sMethod = $this->getBehaviorModeration($oEntity)->getParam('callback_denied');
             if(method_exists($oEntity, $sMethod)){
-                call_user_func([$oEntity, $sMethod]);
+                call_user_func_array([$oEntity, $sMethod], ['message' => getRequest('promptMessage')]);
             }
         }
         /*
