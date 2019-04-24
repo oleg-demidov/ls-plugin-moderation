@@ -14,8 +14,9 @@ class PluginModeration_ActionModeration_EventModeration extends Event {
         
         $sEntity = $this->GetParam(0);
         
+        $aTypesEntity = $this->PluginModeration_Moderation_GetModerationEntities();
         if(!$sEntity){
-            $aTypesEntity = $this->PluginModeration_Moderation_GetModerationEntities();
+            
             if($aTypesEntity and !$this->GetParam(0)){
                 $sEntity = current($aTypesEntity)->getEntity();
                 Router::LocationAction(Router::GetAction() . '/list/' . $sEntity);

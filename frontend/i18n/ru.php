@@ -27,6 +27,8 @@ return [
         ]
     ],
     'notices' => [
-        
+        'in_moderation' => [
+            'text' => 'Спасибо за %%label%%. %%label%% <strong>%%title%%</strong> находится на модерации.'
+        ]
     ]
 ];

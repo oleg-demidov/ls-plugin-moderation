@@ -31,7 +31,7 @@ class PluginModeration_ModuleModeration extends ModuleORM
         ]);
     }
     
-    public function GetEntityModeration($oEntity) {
+    public function GetEntityModeration($oEntity) { 
         return $this->GetModerationByFilter([
             'entity' => get_class($oEntity),
             'entity_id' => $oEntity->_getPrimaryKeyValue()
@@ -61,5 +61,17 @@ class PluginModeration_ModuleModeration extends ModuleORM
         foreach ($aModerations as $oModeration) {
             $oModeration->Delete();
         }
+    }
+    
+    public function GetBehaviorEntity($oEntity) {
+        $aBehaviors = $oEntity->GetBehaviors();
+        $isBehaviorModeration = false;
+        foreach ($aBehaviors as $oBehavior) {
+            if ($oBehavior instanceof PluginModeration_ModuleModeration_BehaviorEntity) {
+                return $oBehavior;
+            }
+        }
+        
+        return false;
     }
 }

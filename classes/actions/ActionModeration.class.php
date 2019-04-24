@@ -42,6 +42,8 @@ class PluginModeration_ActionModeration extends ActionPlugin{
     }
     
     protected function RegisterEvent() {
+        $this->AddEventPreg('/^[\d]+$/i',  'EventInModeration');
+        
         $this->RegisterEventExternal('Moderation', 'PluginModeration_ActionModeration_EventModeration');
         $this->AddEventPreg('/^list$/i', '/^([\w_]+)?$/i',  '/^(moderation|denied)?$/i', ['Moderation::EventList' , 'moderation_list']);
         $this->AddEventPreg('/^ajax-list$/i', 'Moderation::EventAjaxList');
@@ -71,6 +73,19 @@ class PluginModeration_ActionModeration extends ActionPlugin{
         }
         
         return true;
+    }
+    
+    public function EventInModeration() {
+        $oModeration = $this->PluginModeration_Moderation_GetModerationById( $this->sCurrentEvent );
+        if(!$oModeration ){
+            return $this->EventNotFound();
+        }
+        
+        $oEntity = $oModeration->getEntityObject();
+        
+        $this->Viewer_Assign('oEntity', $oEntity);
+        $this->Viewer_Assign('oBehavior', $this->PluginModeration_Moderation_GetBehaviorEntity($oEntity));
+        $this->SetTemplateAction('in-moderation');
     }
     
     /**

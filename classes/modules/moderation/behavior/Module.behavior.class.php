@@ -45,6 +45,10 @@ class PluginModeration_ModuleModeration_BehaviorModule extends Behavior
         'module_orm_GetItemsByFilter_before' => array(
             'CallbackGetItemsByFilterBefore',
             1000
+        ),
+        'module_orm_GetByFilter_after'      => array(
+            'CallbackGetByFilterAfter',
+            1000
         )
     );
 
@@ -57,16 +61,9 @@ class PluginModeration_ModuleModeration_BehaviorModule extends Behavior
     {
         $oEntity = Engine::GetEntity($aParams['sEntityFull']);
         
-        $aBehaviors = $oEntity->GetBehaviors();
-        $isBehaviorModeration = false;
-        foreach ($aBehaviors as $oBehavior) {
-            if ($oBehavior instanceof PluginModeration_ModuleModeration_BehaviorEntity) {
-                $isBehaviorModeration = true;
-                break;
-            }
-        }
+        $oBehavior = $this->PluginModeration_Moderation_GetBehaviorEntity($oEntity);
         
-        if(!$isBehaviorModeration){
+        if(!$oBehavior){
             return false;
         }
         
@@ -86,7 +83,29 @@ class PluginModeration_ModuleModeration_BehaviorModule extends Behavior
         $aParams['aFilter']['#where']["t.{$oEntity->_getPrimaryKey()} NOT IN (?a)"] = [array_keys($aModerations)];
     }
 
-    
+    public function CallbackGetByFilterAfter($aParams) {
+        if(isset($aParams['aFilter']['#for_moderate'])){
+            return;
+        }
+        
+        $oEntity = $aParams['aEntities']?$aParams['aEntities']:null;
+        
+        if(!$oEntity){
+            return;
+        }
+        
+        $oBehavior = $this->PluginModeration_Moderation_GetBehaviorEntity($oEntity);
+        
+        if(!$oBehavior){
+            return;
+        }
+        
+        if(!$oModeration = $oBehavior->getModeration()){
+            return;
+        }
+        
+        Router::LocationAction('moderation/'.$oModeration->getId());
+    }
 
     
 }
