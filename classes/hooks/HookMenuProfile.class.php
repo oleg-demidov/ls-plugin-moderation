@@ -1,16 +1,16 @@
 <?php
 
 
-class PluginModeration_HookMenuUser extends Hook{
+class PluginModeration_HookMenuProfile extends Hook{
     public function RegisterHook()
     {
-        $this->AddHook('engine_init_complete', 'NavUser');        
+        $this->AddHook('engine_init_complete', 'NavProfile');        
     }
 
     /**
      * Добавляем в главное меню 
      */
-    public function NavUser($aParams)
+    public function NavProfile($aParams)
     {
         if(!$oUser = $this->User_GetUserCurrent()){
             return false;
