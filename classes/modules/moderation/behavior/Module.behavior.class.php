@@ -99,7 +99,7 @@ class PluginModeration_ModuleModeration_BehaviorModule extends Behavior
         if(!$oBehavior){
             return;
         }
-        
+                
         if(!$oModeration = $oBehavior->getModeration()){
             return;
         }

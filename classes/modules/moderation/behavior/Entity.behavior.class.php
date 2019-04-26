@@ -56,6 +56,14 @@ class PluginModeration_ModuleModeration_BehaviorEntity extends Behavior
     );
     
     public function CallbackAfterSave() {
+        if (!$this->oObject->_isNew()) {
+            $aChangeFileds = $this->oObject->_getDataFieldsForDb(true);
+        
+            if(!array_uintersect($aChangeFileds, $this->getParam('moderation_fields'), "strcasecmp")){
+                return;
+            }
+        }
+        
         $this->PluginModeration_Moderation_ToModeration($this->oObject);
     }
     
