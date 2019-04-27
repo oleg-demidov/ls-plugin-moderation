@@ -75,8 +75,12 @@ class PluginModeration_ModuleModeration_BehaviorEntity extends Behavior
         return $this->getParam('moderation_fields');
     }
     
+    /**
+     * Пытается взять Имя сущности с учетом параметра title_field вызывая геттер
+     * @return string
+     */
     public function getTitle() {
-        return $this->oObject->_getDataOne($this->getParam('title_field'));
+        return func_text_words(call_user_func([$this->oObject, 'get'.func_camelize($this->getParam('title_field'))]),3);
     }
     
     public function getLabel() {

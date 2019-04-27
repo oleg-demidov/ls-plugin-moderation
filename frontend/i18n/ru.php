@@ -28,6 +28,7 @@ return [
     ],
     'notices' => [
         'in_moderation' => [
+            'message' => 'Объект %%title%% отправлен на модерацию',
             'text' => 'Спасибо за %%label%%. %%label%% <strong>%%title%%</strong> находится на модерации.'
         ]
     ]

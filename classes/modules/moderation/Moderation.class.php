@@ -19,6 +19,10 @@ class PluginModeration_ModuleModeration extends ModuleORM
             ]);
         }
         
+        $oBehavior = $this->GetBehaviorEntity($oEntity);
+        
+        $this->Message_AddNotice($this->Lang_Get('plugin.moderation.notices.in_moderation.message', ['title' => $oBehavior->getTitle()]));
+        
         $oModeration->setState(self::STATE_MODERATE);
         
         return $oModeration->Save();

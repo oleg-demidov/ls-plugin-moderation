@@ -10,7 +10,7 @@
         {component "bs-button" 
             com         = "link"
             url         = "#"
-            text        = $oEntity->_getDataOne($sTitleField)
+            text        = $oEntity->moderation->getTitle()
             bmods       = "success" 
             attributes  = [ "data-toggle" => "modal", "data-target" => "#{$idModal}" ]}
     </div>
