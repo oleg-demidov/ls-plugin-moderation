@@ -83,8 +83,8 @@ class PluginModeration_ModuleModeration_BehaviorModule extends Behavior
         $aParams['aFilter']['#where']["t.{$oEntity->_getPrimaryKey()} NOT IN (?a)"] = [array_keys($aModerations)];
     }
 
-    public function CallbackGetByFilterAfter($aParams) {
-        if(isset($aParams['aFilter']['#for_moderate'])){
+    public function CallbackGetByFilterAfter($aParams) { 
+        if(isset($aParams['aFilter']['#with_moderation'])){
             return;
         }
         

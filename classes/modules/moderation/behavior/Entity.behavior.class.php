@@ -27,11 +27,13 @@
  */
 class PluginModeration_ModuleModeration_BehaviorEntity extends Behavior
 {
+    private $bObjectIsNew = false;
     /**
      * Дефолтные параметры
      *
      * @var array
      */
+    
     protected $aParams = array(
         // Поля которые нужно модерировать 
         'moderation_fields' => [],
@@ -52,19 +54,35 @@ class PluginModeration_ModuleModeration_BehaviorEntity extends Behavior
      */
     protected $aHooks = array(
         'after_save'     => 'CallbackAfterSave',
+        'before_save'    => 'CallbackBeforeSave',
         'after_delete'   => 'CallbackAfterDelete',
     );
     
-    public function CallbackAfterSave() {
-        if (!$this->oObject->_isNew()) {
-            $aChangeFileds = $this->oObject->_getDataFieldsForDb(true);
+    private function objectIsChanged(){
+        $aChangeFileds = array_keys($this->oObject->_getDataFieldsForDb(true));
+        $aChangeFieldsParam = array_uintersect($aChangeFileds, $this->getParam('moderation_fields'), "strcasecmp");
+        return $aChangeFieldsParam;
+    }
+    
+    /**
+     * Отправляет на модерацию в случае если обьект взят из базы и изменен
+     */
+    public function CallbackBeforeSave() {
+        $this->bObjectIsNew = $this->oObject->_isNew();
         
-            if(!array_uintersect($aChangeFileds, $this->getParam('moderation_fields'), "strcasecmp")){
-                return;
-            }
+        if (!$this->oObject->_isNew() and $this->objectIsChanged()) {
+            $this->PluginModeration_Moderation_ToModeration($this->oObject);
+        }
+    }
+    
+    /**
+     *  Отправляет на модерацию в случае если обьект новый только что добавлен в базу
+     */
+    public function CallbackAfterSave() {
+        if($this->bObjectIsNew){
+            $this->PluginModeration_Moderation_ToModeration($this->oObject);
         }
         
-        $this->PluginModeration_Moderation_ToModeration($this->oObject);
     }
     
     public function CallbackAfterDelete() {
