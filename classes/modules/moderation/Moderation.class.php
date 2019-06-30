@@ -59,7 +59,7 @@ class PluginModeration_ModuleModeration extends ModuleORM
     public function RemoveModerations($oEntity) {
         $aModerations = $this->PluginModeration_Moderation_GetModerationItemsByFilter([
             'entity' => get_class( $oEntity ),
-            'id' => $oEntity->_getPrimaryKeyValue()
+            'entity_id' => $oEntity->_getPrimaryKeyValue()
         ]);
         
         foreach ($aModerations as $oModeration) {

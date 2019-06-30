@@ -167,7 +167,7 @@ class PluginModeration_ActionModeration_EventModeration extends Event {
          * Получение сущности по параметрам из реквеста
          */
         $oEntity = $this->PluginModeration_Moderation_GetByFilter([
-            $oEntity->_getPrimaryKey() => getRequest('entityId')
+            'id' => getRequest('id')
         ], getRequest('entity'));
         /*
          * Удаление если найдена
@@ -180,7 +180,6 @@ class PluginModeration_ActionModeration_EventModeration extends Event {
          */
         $iModerationCount = $this->PluginModeration_Moderation_GetCountFromModerationByFilter([
             'entity'        => getRequest('entity'),
-            'entity_id'     => getRequest('entityId')
         ]);
         
         $this->Viewer_AssignAjax('countAll', $iModerationCount);

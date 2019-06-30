@@ -3,10 +3,18 @@
 {component_define_params params=[ 'oEntity', 'aModerateFields', 'sTitleField']}
 
 <div class="row mt-3 entity-item">
-    <div class="col-1">{$oEntity->_getPrimaryKeyValue()}</div>
+    <div class="col-1">
+        {$idModal = "entity{$oEntity->_getPrimaryKeyValue()}Modal"}
+        {component "bs-button" 
+            com         = "link"
+            url         = "#"
+            text        = $oEntity->_getPrimaryKeyValue()
+            bmods       = "success" 
+            attributes  = [ "data-toggle" => "modal", "data-target" => "#{$idModal}" ]}
+    </div>
 
     <div class="col">
-        {$idModal = "entity{$oEntity->_getPrimaryKeyValue()}Modal"}
+        
         {component "bs-button" 
             com         = "link"
             url         = "#"
@@ -63,6 +71,7 @@
                 
                 "data-dismiss" => "modal",
                 'data-param-id' => $oEntity->getId(),
+                'data-param-entity' => $sEntityClass,
                 'data-ajax-btn' => "true",
                 'data-confirm'  => "true",
                 'data-confirm-message'  => $aLang.plugin.moderation.actions.notices.confirm_delete,
@@ -76,7 +85,7 @@
 
 
     {component "bs-modal" 
-        header      = {lang "plugin.moderation.list.title" entity=$oEntity->_getDataOne($sTitleField)}
+        header      = {lang "plugin.moderation.list.title" entity=$oEntity->moderation->getTitle()}
         bmods       = "lg" 
         centered    = true 
         content     = $smarty.capture.contentEntity
